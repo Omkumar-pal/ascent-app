@@ -61,7 +61,7 @@ export const createAction = async (req: AuthRequest, res: Response): Promise<voi
 
 export const completeAction = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.userId!;
     const body = completeActionSchema.parse(req.body || {});
 
@@ -137,7 +137,7 @@ export const completeAction = async (req: AuthRequest, res: Response): Promise<v
 
 export const skipAction = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.userId!;
     const { notes } = req.body;
 
@@ -174,7 +174,7 @@ export const skipAction = async (req: AuthRequest, res: Response): Promise<void>
 
 export const updateAction = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.userId!;
     const body = req.body;
 
@@ -211,7 +211,7 @@ export const updateAction = async (req: AuthRequest, res: Response): Promise<voi
 
 export const deleteAction = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.userId!;
 
     const action = await prisma.action.findUnique({
@@ -230,3 +230,4 @@ export const deleteAction = async (req: AuthRequest, res: Response): Promise<voi
     res.status(500).json({ error: error.message || 'Internal server error' });
   }
 };
+

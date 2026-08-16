@@ -42,7 +42,7 @@ export const getRoutines = async (req: AuthRequest, res: Response): Promise<void
 
 export const updateRoutine = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.userId!;
     const body = updateRoutineSchema.parse(req.body);
 

@@ -45,7 +45,7 @@ export const createMilestone = async (req: AuthRequest, res: Response): Promise<
 
 export const updateMilestone = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const body = req.body;
 
     const milestone = await prisma.milestone.findUnique({
@@ -78,7 +78,7 @@ export const updateMilestone = async (req: AuthRequest, res: Response): Promise<
 
 export const deleteMilestone = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const milestone = await prisma.milestone.findUnique({
       where: { id },
       include: { goal: true },

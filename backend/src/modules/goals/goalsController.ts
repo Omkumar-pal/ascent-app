@@ -157,7 +157,7 @@ export const getGoals = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const getGoalById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.userId!;
 
     const goal = await prisma.goal.findFirst({
@@ -185,13 +185,13 @@ export const getGoalById = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    const allActions = goal.actions.length > 0
+    const allActions = goal.actions && goal.actions.length > 0
       ? goal.actions
-      : goal.milestones.flatMap(m => m.actions);
+      : (goal.milestones || []).flatMap((m: any) => m.actions || []);
 
     const total = allActions.length;
-    const completed = allActions.filter(a => a.status === 'COMPLETED').length;
-    const missed = allActions.filter(a => a.status === 'MISSED').length;
+    const completed = allActions.filter((a: any) => a.status === 'COMPLETED').length;
+    const missed = allActions.filter((a: any) => a.status === 'MISSED').length;
 
     const calc = calculateGoalStatus({
       startDate: goal.startDate,
@@ -219,7 +219,7 @@ export const getGoalById = async (req: AuthRequest, res: Response): Promise<void
 
 export const updateGoal = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.userId!;
     const body = req.body;
 
@@ -253,7 +253,7 @@ export const updateGoal = async (req: AuthRequest, res: Response): Promise<void>
 
 export const deleteGoal = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.userId!;
 
     const goal = await prisma.goal.findFirst({ where: { id, userId } });
