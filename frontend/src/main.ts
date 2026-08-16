@@ -88,6 +88,16 @@ class App {
       }
     });
 
+    // Context-aware FAB visibility based on screen architecture
+    const fabBtn = document.getElementById('global-fab-btn') as HTMLElement;
+    if (fabBtn) {
+      if (tab === 'today' || tab === 'goals') {
+        fabBtn.style.display = 'flex';
+      } else {
+        fabBtn.style.display = 'none';
+      }
+    }
+
     const onNav = (nextTab: string, nextParam?: string) => this.navigate(nextTab, nextParam);
 
     switch (tab) {
