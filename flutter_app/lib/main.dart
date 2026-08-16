@@ -425,6 +425,77 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ],
           ),
         ),
+        const SizedBox(height: 24),
+        Text('Backend Server Connection', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.bgGlassCard,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.borderSubtle),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.accentEmerald),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('Live Cloud Tunnel Connected', style: TextStyle(color: AppColors.accentEmerald, fontWeight: FontWeight.bold, fontSize: 13)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(ApiClient.baseUrl, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+              const SizedBox(height: 14),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accentViolet,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () {
+                  final ctrl = TextEditingController(text: ApiClient.baseUrl);
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      backgroundColor: AppColors.bgSurface,
+                      title: const Text('Change Server URL'),
+                      content: TextField(
+                        controller: ctrl,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                          hintText: 'https://...',
+                          hintStyle: TextStyle(color: Colors.white30),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text('Cancel'),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.accentViolet),
+                          onPressed: () {
+                            ApiClient.setBaseUrl(ctrl.text.trim());
+                            Navigator.pop(ctx);
+                            _loadData();
+                          },
+                          child: const Text('Save & Reconnect'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.settings_ethernet, size: 16, color: Colors.white),
+                label: const Text('Change Server URL', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

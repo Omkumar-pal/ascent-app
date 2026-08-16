@@ -4,8 +4,12 @@ import '../../domain/entities/goal.dart';
 import '../../domain/entities/reflection.dart';
 
 class ApiClient {
-  static const String baseUrl = 'http://localhost:5000/api/v1';
+  static String baseUrl = 'https://cruel-knives-pay.loca.lt/api/v1';
   static String? _authToken;
+
+  static void setBaseUrl(String url) {
+    baseUrl = url;
+  }
 
   static void setToken(String token) {
     _authToken = token;
@@ -13,6 +17,7 @@ class ApiClient {
 
   static Map<String, String> get _headers => {
     'Content-Type': 'application/json',
+    'bypass-tunnel-reminder': 'true',
     if (_authToken != null) 'Authorization': 'Bearer $_authToken',
   };
 
