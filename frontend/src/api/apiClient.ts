@@ -1,4 +1,6 @@
-const API_BASE = 'http://localhost:5000/api/v1';
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'https://ascent-backend-api.onrender.com/api/v1'
+  : 'https://ascent-backend-api.onrender.com/api/v1';
 
 export class ApiClient {
   private static tokenKey = 'ascent_auth_token';

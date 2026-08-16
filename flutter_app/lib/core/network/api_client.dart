@@ -4,7 +4,7 @@ import '../../domain/entities/goal.dart';
 import '../../domain/entities/reflection.dart';
 
 class ApiClient {
-  static String baseUrl = 'https://cruel-knives-pay.loca.lt/api/v1';
+  static String baseUrl = 'https://ascent-backend-api.onrender.com/api/v1';
   static String? _authToken;
 
   static void setBaseUrl(String url) {
