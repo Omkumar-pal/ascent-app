@@ -109,18 +109,11 @@ export class TodayView {
             `).join('')}
           </div>
         </section>
-
-        <!-- Floating Add Goal / Action Button -->
-        <button class="fab-btn" id="fab-create-goal">
-          <span>+</span>
-          <span>New Goal</span>
-        </button>
       `;
 
       // Event Listeners
       container.querySelector('#view-all-goals')?.addEventListener('click', () => onNavigate('goals'));
       container.querySelector('#consistency-badge')?.addEventListener('click', () => onNavigate('progress'));
-      container.querySelector('#fab-create-goal')?.addEventListener('click', () => (window as any).openCreateGoalModal());
 
       // Goal card clicks -> Navigate to Goal Detail
       container.querySelectorAll('.goal-card-compact').forEach(card => {

@@ -58,6 +58,10 @@ class App {
     (window as any).openOnboardingModal = () => {
       ModalsManager.openOnboarding(() => this.navigate('today'));
     };
+
+    document.getElementById('global-fab-btn')?.addEventListener('click', () => {
+      (window as any).openCreateGoalModal();
+    });
   }
 
   setupNavigation() {

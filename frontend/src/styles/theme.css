@@ -666,10 +666,10 @@ h1, h2, h3, h4, h5 {
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* Floating Action Button */
+/* Floating Action Button (Fixed over screen, never scrolls) */
 .fab-btn {
   position: absolute;
-  bottom: 90px;
+  bottom: 92px;
   right: 20px;
   background: linear-gradient(135deg, var(--accent-violet) 0%, #6D28D9 100%);
   color: #FFFFFF;
@@ -684,12 +684,13 @@ h1, h2, h3, h4, h5 {
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 8px 24px var(--accent-violet-glow);
-  z-index: 40;
+  z-index: 60;
   transition: var(--transition-bounce);
 }
 
 .fab-btn:hover {
-  transform: scale(1.05);
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.5);
 }
 
 /* Toast */
