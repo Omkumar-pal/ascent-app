@@ -1,0 +1,22 @@
+{
+  "name": "Ascent — Intentional Goals & Routines",
+  "short_name": "Ascent",
+  "description": "Personal goal setting, routine cadence, and mindful progress tracking",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0E14",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

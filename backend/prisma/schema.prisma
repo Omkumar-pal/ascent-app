@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      String                  @id @default(uuid())
+  email                   String                  @unique
+  passwordHash            String
+  fullName                String
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  profile                 UserProfile?
+  goals                   Goal[]
+  actionLogs              ActionLog[]
+  reflections             Reflection[]
+  consistencyLogs         ConsistencyLog[]
+  notificationPreferences NotificationPreference?
+}
+
+model UserProfile {
+  id                     String   @id @default(uuid())
+  userId                 String   @unique
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatarUrl              String?
+  primaryObjective       String?
+  preferredProgressStyle String   @default("BALANCED") // "MILESTONE_DRIVEN", "ROUTINE_DRIVEN", "BALANCED"
+  timezone               String   @default("UTC")
+  personalConstraints    String?  // JSON string or notes
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model Goal {
+  id                     String      @id @default(uuid())
+  userId                 String
+  user                   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title                  String
+  description            String?
+  whyItMatters           String?
+  category               String      @default("PERSONAL") // HEALTH, LEARNING, CAREER, PERSONAL, FINANCE, RELATIONSHIPS, PRODUCTIVITY, CUSTOM
+  customCategoryName     String?
+  priority               String      @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  startDate              DateTime    @default(now())
+  targetDate             DateTime?
+  status                 String      @default("ACTIVE") // ACTIVE, PAUSED, COMPLETED, ARCHIVED
+  statusState            String      @default("ON_TRACK") // ON_TRACK, AHEAD, NEEDS_ATTENTION, BEHIND, COMPLETED
+  progressPercentage     Float       @default(0.0)
+  targetFrequencyPerWeek Int         @default(3)
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  milestones             Milestone[]
+  actions                Action[]
+  routines               Routine[]
+}
+
+model Milestone {
+  id                 String   @id @default(uuid())
+  goalId             String
+  goal               Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  title              String
+  description        String?
+  sortOrder          Int      @default(0)
+  targetDate         DateTime?
+  progressPercentage Float    @default(0.0)
+  status             String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  actions            Action[]
+}
+
+model Action {
+  id                       String      @id @default(uuid())
+  goalId                   String
+  goal                     Goal        @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  milestoneId              String?
+  milestone                Milestone?  @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  title                    String
+  description              String?
+  dueDate                  DateTime?
+  preferredTime            String?     // e.g. "08:00", "20:00"
+  estimatedDurationMinutes Int         @default(30)
+  priority                 String      @default("MEDIUM") // LOW, MEDIUM, HIGH
+  difficulty               String      @default("MEDIUM") // EASY, MEDIUM, HARD
+  status                   String      @default("UPCOMING") // UPCOMING, IN_PROGRESS, COMPLETED, MISSED, SKIPPED
+  isRecurring              Boolean     @default(false)
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+  actionLogs               ActionLog[]
+}
+
+model ActionLog {
+  id                   String   @id @default(uuid())
+  actionId             String
+  action               Action   @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completedAt          DateTime @default(now())
+  durationSpentMinutes Int      @default(30)
+  notes                String?
+  statusOutcome        String   @default("COMPLETED") // COMPLETED, SKIPPED, PARTIAL
+  createdAt            DateTime @default(now())
+}
+
+model Routine {
+  id                     String   @id @default(uuid())
+  goalId                 String
+  goal                   Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  routineType            String   @default("DAYS_OF_WEEK") // DAYS_OF_WEEK, FREQUENCY_BASED
+  daysOfWeek             String   @default("[1,3,5]") // JSON string of days [1=Mon ... 7=Sun]
+  preferredTime          String   @default("08:00") // "08:00", "20:00"
+  targetDurationMinutes  Int      @default(30)
+  weeklyFrequencyTarget  Int      @default(3)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model Reflection {
+  id                    String   @id @default(uuid())
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStartDate         DateTime
+  weekEndDate           DateTime
+  actionsCompletedCount Int      @default(0)
+  actionsMissedCount    Int      @default(0)
+  strongestArea         String?
+  needsAttentionArea    String?
+  whatWentWell          String?
+  whatWasDifficult      String?
+  nextWeekFocus         String?
+  energyMoodRating      Int      @default(4) // 1 to 5
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model ConsistencyLog {
+  id                    String   @id @default(uuid())
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logDate               DateTime
+  plannedActions        Int      @default(0)
+  completedActions      Int      @default(0)
+  isConsistent          Boolean  @default(true)
+  currentStreakDays     Int      @default(0)
+  weeklyConsistencyRate Float    @default(100.0)
+  createdAt             DateTime @default(now())
+}
+
+model NotificationPreference {
+  id                       String   @id @default(uuid())
+  userId                   String   @unique
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  morningFocusReminder     Boolean  @default(true)
+  morningReminderTime      String   @default("08:00")
+  eveningCheckInReminder   Boolean  @default(true)
+  eveningReminderTime      String   @default("20:00")
+  weeklyReflectionReminder Boolean  @default(true)
+  weeklyReflectionDay      Int      @default(7) // Sunday
+  weeklyReflectionTime     String   @default("18:00")
+  pushEnabled              Boolean  @default(true)
+  emailEnabled             Boolean  @default(false)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
