@@ -19,6 +19,10 @@ class App {
     this.setupGlobals();
     this.setupNavigation();
 
+    window.addEventListener('ascent_auth_expired', () => {
+      this.navigate('auth');
+    });
+
     // Check existing authenticated session
     if (!ApiClient.getToken()) {
       this.navigate('auth');
