@@ -31,6 +31,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    let style: 'BALANCED' | 'ROUTINE_DRIVEN' | 'MILESTONE_DRIVEN' = 'BALANCED';
+    if (validated.preferredProgressStyle) {
+      const s = validated.preferredProgressStyle.toUpperCase();
+      if (s.includes('ROUTINE') || s.includes('INTENSITY')) style = 'ROUTINE_DRIVEN';
+      else if (s.includes('MILESTONE') || s.includes('HABIT')) style = 'MILESTONE_DRIVEN';
+      else style = 'BALANCED';
+    }
+
     const passwordHash = await bcrypt.hash(validated.password, 10);
     const user = await prisma.user.create({
       data: {
@@ -40,7 +48,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         profile: {
           create: {
             primaryObjective: validated.primaryObjective || 'Achieve balance and consistency',
-            preferredProgressStyle: validated.preferredProgressStyle || 'BALANCED',
+            preferredProgressStyle: style,
           },
         },
         notificationPreferences: {

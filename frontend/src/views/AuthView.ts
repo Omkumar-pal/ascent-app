@@ -60,9 +60,9 @@ export class AuthView {
                 <div>
                   <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Progress Approach</label>
                   <select id="auth-style" class="modal-input" style="width: 100%; box-sizing: border-box;">
-                    <option value="Balanced">⚖️ Balanced (Sustainable 3-4 days/week)</option>
-                    <option value="High Intensity">⚡ High Intensity (Daily mastery)</option>
-                    <option value="Mindful Habit">🌱 Mindful Habit (Gentle, rest-day heavy)</option>
+                    <option value="BALANCED">⚖️ Balanced (Sustainable 3-4 days/week)</option>
+                    <option value="ROUTINE_DRIVEN">⚡ High Intensity (Daily routine driven)</option>
+                    <option value="MILESTONE_DRIVEN">🌱 Milestone Focused (Milestone driven)</option>
                   </select>
                 </div>
               ` : ''}
