@@ -41,8 +41,18 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
+  bool _isAuthenticated = false;
+  bool _isAuthLoading = false;
+  bool _isLoginMode = true;
+  String? _authErrorMessage;
+
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController(text: 'alex@ascent.app');
+  final _passwordController = TextEditingController(text: 'password123');
+  String _preferredProgressStyle = 'Balanced';
+
   int _currentIndex = 0;
-  bool _isLoading = true;
+  bool _isLoading = false;
   Map<String, dynamic>? _dashboardData;
   List<Goal> _goals = [];
   String _selectedCategoryFilter = 'ALL';
@@ -50,12 +60,66 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _checkInitialAuth();
+  }
+
+  Future<void> _checkInitialAuth() async {
+    // If already has token or auto-login with demo
+    try {
+      final res = await ApiClient.login('alex@ascent.app', 'password123');
+      if (res['token'] != null) {
+        setState(() => _isAuthenticated = true);
+        _loadData();
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _handleAuthSubmit() async {
+    setState(() {
+      _isAuthLoading = true;
+      _authErrorMessage = null;
+    });
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    try {
+      if (_isLoginMode) {
+        final res = await ApiClient.login(email, password);
+        if (res['token'] != null) {
+          setState(() {
+            _isAuthenticated = true;
+            _isAuthLoading = false;
+          });
+          _loadData();
+        }
+      } else {
+        final name = _nameController.text.trim();
+        final res = await ApiClient.register({
+          'name': name.isEmpty ? 'Alex Rivera' : name,
+          'email': email,
+          'password': password,
+          'preferredProgressStyle': _preferredProgressStyle,
+        });
+        if (res['token'] != null) {
+          setState(() {
+            _isAuthenticated = true;
+            _isAuthLoading = false;
+          });
+          _loadData();
+        }
+      }
+    } catch (err: any) {
+      setState(() {
+        _isAuthLoading = false;
+        _authErrorMessage = err.toString().replaceAll('Exception:', '').trim();
+      });
+    }
   }
 
   Future<void> _loadData() async {
+    setState(() => _isLoading = true);
     try {
-      await ApiClient.login('alex@ascent.app', 'password123');
       final dash = await ApiClient.getDashboard();
       final goals = await ApiClient.getGoals();
       if (mounted) {
@@ -74,6 +138,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isAuthenticated) {
+      return _buildAuthScreen();
+    }
+
     if (_isLoading) {
       return const Scaffold(
         body: Center(
@@ -128,6 +196,220 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             BottomNavigationBarItem(icon: Icon(Icons.show_chart_outlined), activeIcon: Icon(Icons.show_chart), label: 'Progress'),
             BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'Profile'),
           ],
+        ),
+      ),
+    );
+  }
+
+  // 0. AUTH SCREEN (SIGN IN / SIGN UP)
+  Widget _buildAuthScreen() {
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Brand Header
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.accentViolet, Color(0xFF6D28D9)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(color: AppColors.accentViolet.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8)),
+                    ],
+                  ),
+                  child: const Icon(Icons.auto_awesome, size: 30, color: Colors.white),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'ASCENT',
+                  style: GoogleFonts.outfit(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  'Intentional Personal Goals & Habit Systems',
+                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 32),
+
+                // Glassmorphic Auth Card
+                Container(
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgGlassCard,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: Column(
+                    children: [
+                      // Mode Selector (Sign In / Register)
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() => _isLoginMode = true),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: _isLoginMode ? AppColors.accentViolet : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Sign In',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: _isLoginMode ? Colors.white : AppColors.textMuted,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() => _isLoginMode = false),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: !_isLoginMode ? AppColors.accentViolet : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Create Account',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: !_isLoginMode ? Colors.white : AppColors.textMuted,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Error banner
+                      if (_authErrorMessage != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                          ),
+                          child: Text(
+                            _authErrorMessage!,
+                            style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+
+                      // Form Fields
+                      if (!_isLoginMode) ...[
+                        TextField(
+                          controller: _nameController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            labelText: 'Full Name',
+                            labelStyle: const TextStyle(color: AppColors.textMuted),
+                            filled: true,
+                            fillColor: AppColors.bgSurface,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
+
+                      TextField(
+                        controller: _emailController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          labelText: 'Email Address',
+                          labelStyle: const TextStyle(color: AppColors.textMuted),
+                          filled: true,
+                          fillColor: AppColors.bgSurface,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          labelStyle: const TextStyle(color: AppColors.textMuted),
+                          filled: true,
+                          fillColor: AppColors.bgSurface,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Submit Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accentViolet,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: _isAuthLoading ? null : _handleAuthSubmit,
+                          child: _isAuthLoading
+                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : Text(
+                                  _isLoginMode ? 'Sign In to Ascent' : 'Get Started — Free',
+                                  style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                                ),
+                        ),
+                      ),
+
+                      if (_isLoginMode) ...[
+                        const SizedBox(height: 16),
+                        TextButton(
+                          onPressed: () {
+                            _emailController.text = 'alex@ascent.app';
+                            _passwordController.text = 'password123';
+                          },
+                          child: const Text(
+                            '✨ Quick Fill Demo User (Alex Rivera)',
+                            style: TextStyle(color: Color(0xFFDDD6FE), fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -327,7 +609,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
           );
         }),
-        const SizedBox(height: 60), // Room for FAB
+        const SizedBox(height: 60),
       ],
     );
   }
@@ -406,7 +688,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
           ),
         )),
-        const SizedBox(height: 60), // Room for FAB
+        const SizedBox(height: 60),
       ],
     );
   }
@@ -602,18 +884,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: AppColors.borderSubtle),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              CircleAvatar(radius: 28, backgroundColor: AppColors.accentViolet, child: Text('A', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22))),
-              SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Alex Rivera', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
-                  Text('alex@ascent.app', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
-                  SizedBox(height: 4),
-                  Text('Progress Style: Sustainable Cadence', style: TextStyle(color: AppColors.accentEmerald, fontSize: 12, fontWeight: FontWeight.w600)),
-                ],
+              const CircleAvatar(radius: 28, backgroundColor: AppColors.accentViolet, child: Text('A', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22))),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_emailController.text.split('@').first.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+                    Text(_emailController.text, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                    const SizedBox(height: 4),
+                    const Text('Progress Style: Sustainable Cadence', style: TextStyle(color: AppColors.accentEmerald, fontSize: 12, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
             ],
           ),
@@ -672,7 +956,29 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
+
+        // Log Out Button
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: Colors.redAccent.withOpacity(0.5)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              ApiClient.clearToken();
+              setState(() {
+                _isAuthenticated = false;
+                _currentIndex = 0;
+              });
+            },
+            icon: const Icon(Icons.logout, size: 18, color: Colors.redAccent),
+            label: const Text('Log Out', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+          ),
+        ),
+        const SizedBox(height: 20),
 
         // Subtle Server Status Footer
         Container(

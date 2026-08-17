@@ -59,10 +59,15 @@ export class ApiClient {
     return res;
   }
 
-  static async register(data: { email: string; password: string; fullName: string; primaryObjective?: string; preferredProgressStyle?: string }) {
+  static async register(data: { name?: string; fullName?: string; email: string; password: string; primaryObjective?: string; preferredProgressStyle?: string }) {
     const res = await this.request<{ token: string; user: any }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        name: data.name || data.fullName,
+        email: data.email,
+        password: data.password,
+        preferredProgressStyle: data.preferredProgressStyle,
+      }),
     });
     if (res.token) this.setToken(res.token);
     return res;

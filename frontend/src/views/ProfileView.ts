@@ -91,8 +91,8 @@ export class ProfileView {
       container.querySelector('#btn-reopen-onboarding')?.addEventListener('click', () => (window as any).openOnboardingModal());
       container.querySelector('#btn-logout')?.addEventListener('click', () => {
         ApiClient.clearToken();
-        (window as any).showToast('Logged out');
-        onNavigate('today');
+        (window as any).showToast('Logged out successfully');
+        onNavigate('auth');
       });
 
       // Notification toggle listener

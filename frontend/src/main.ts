@@ -4,6 +4,7 @@ import { GoalDetailView } from './views/GoalDetailView';
 import { CalendarView } from './views/CalendarView';
 import { ProgressView } from './views/ProgressView';
 import { ProfileView } from './views/ProfileView';
+import { AuthView } from './views/AuthView';
 import { ModalsManager } from './views/Modals';
 import { ApiClient } from './api/apiClient';
 
@@ -12,21 +13,18 @@ class App {
   private currentGoalId: string | null = null;
   private container = document.getElementById('main-content') as HTMLElement;
   private navTabs = document.querySelectorAll('.nav-tab');
+  private bottomNav = document.getElementById('bottom-nav') as HTMLElement;
 
   async init() {
     this.setupGlobals();
     this.setupNavigation();
 
-    // Auto-login check
+    // Check existing authenticated session
     if (!ApiClient.getToken()) {
-      try {
-        await ApiClient.login('alex@ascent.app', 'password123');
-      } catch (e) {
-        console.warn('Initial login sync:', e);
-      }
+      this.navigate('auth');
+    } else {
+      this.navigate('today');
     }
-
-    this.navigate('today');
   }
 
   setupGlobals() {
@@ -79,7 +77,25 @@ class App {
     this.currentTab = tab;
     if (param) this.currentGoalId = param;
 
-    // Update Bottom Nav state
+    const fabBtn = document.getElementById('global-fab-btn') as HTMLElement;
+
+    if (tab === 'auth') {
+      if (this.bottomNav) this.bottomNav.style.display = 'none';
+      if (fabBtn) fabBtn.style.display = 'none';
+      AuthView.render(this.container, (isNewUser) => {
+        if (isNewUser) {
+          ModalsManager.openOnboarding(() => this.navigate('today'));
+        } else {
+          this.navigate('today');
+        }
+      });
+      return;
+    }
+
+    // Ensure Bottom Nav is visible for app views
+    if (this.bottomNav) this.bottomNav.style.display = 'flex';
+
+    // Update Bottom Nav active state
     this.navTabs.forEach(btn => {
       if ((btn as HTMLElement).dataset.tab === tab) {
         btn.classList.add('active');
@@ -89,7 +105,6 @@ class App {
     });
 
     // Context-aware FAB visibility based on screen architecture
-    const fabBtn = document.getElementById('global-fab-btn') as HTMLElement;
     if (fabBtn) {
       if (tab === 'today' || tab === 'goals') {
         fabBtn.style.display = 'flex';

@@ -15,6 +15,12 @@ class ApiClient {
     _authToken = token;
   }
 
+  static void clearToken() {
+    _authToken = null;
+  }
+
+  static bool get isAuthenticated => _authToken != null;
+
   static Map<String, String> get _headers => {
     'Content-Type': 'application/json',
     'bypass-tunnel-reminder': 'true',
@@ -26,6 +32,19 @@ class ApiClient {
       Uri.parse('$baseUrl/auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
+    );
+    final data = jsonDecode(response.body);
+    if (data['token'] != null) {
+      setToken(data['token']);
+    }
+    return data;
+  }
+
+  static Future<Map<String, dynamic>> register(Map<String, dynamic> userData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/register'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(userData),
     );
     final data = jsonDecode(response.body);
     if (data['token'] != null) {
