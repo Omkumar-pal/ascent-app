@@ -50,8 +50,37 @@ class ApiClient {
     return Goal.fromJson(jsonDecode(response.body));
   }
 
-  static Future<void> completeAction(String actionId) async {
-    await http.post(Uri.parse('$baseUrl/actions/$actionId/complete'), headers: _headers);
+  static Future<Goal> createGoal(Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/goals'),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
+    return Goal.fromJson(jsonDecode(response.body));
+  }
+
+  static Future<void> createMilestone(String goalId, String title) async {
+    await http.post(
+      Uri.parse('$baseUrl/milestones'),
+      headers: _headers,
+      body: jsonEncode({'goalId': goalId, 'title': title}),
+    );
+  }
+
+  static Future<void> createAction(Map<String, dynamic> data) async {
+    await http.post(
+      Uri.parse('$baseUrl/actions'),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
+  }
+
+  static Future<void> submitReflection(Map<String, dynamic> data) async {
+    await http.post(
+      Uri.parse('$baseUrl/reflections'),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
   }
 
   static Future<Reflection?> getWeeklyReflectionSummary() async {
