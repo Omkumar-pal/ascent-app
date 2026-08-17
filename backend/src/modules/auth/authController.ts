@@ -7,25 +7,27 @@ import { config } from '../../config';
 import { AuthRequest } from '../../middleware/auth';
 
 const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  fullName: z.string().min(2),
+  email: z.string().email('Please provide a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  fullName: z.string().optional(),
+  name: z.string().optional(),
   primaryObjective: z.string().optional(),
-  preferredProgressStyle: z.enum(['MILESTONE_DRIVEN', 'ROUTINE_DRIVEN', 'BALANCED']).optional(),
+  preferredProgressStyle: z.string().optional(),
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().email('Please provide a valid email address'),
+  password: z.string().min(1, 'Password is required'),
 });
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const validated = registerSchema.parse(req.body);
+    const resolvedName = validated.fullName || validated.name || 'Ascent User';
     
     const existing = await prisma.user.findUnique({ where: { email: validated.email } });
     if (existing) {
-      res.status(400).json({ error: 'User with this email already exists' });
+      res.status(400).json({ error: 'An account with this email already exists. Please sign in.' });
       return;
     }
 
@@ -34,7 +36,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       data: {
         email: validated.email,
         passwordHash,
-        fullName: validated.fullName,
+        fullName: resolvedName,
         profile: {
           create: {
             primaryObjective: validated.primaryObjective || 'Achieve balance and consistency',
@@ -66,7 +68,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error: any) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      const msg = error.errors.map(e => e.message).join('. ');
+      res.status(400).json({ error: msg });
       return;
     }
     res.status(500).json({ error: error.message || 'Internal server error' });

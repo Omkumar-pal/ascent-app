@@ -44,7 +44,15 @@ export class ApiClient {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({ error: 'Network request failed' }));
-      throw new Error(err.error || `HTTP error ${response.status}`);
+      let errorMsg = 'An unexpected error occurred';
+      if (typeof err.error === 'string') {
+        errorMsg = err.error;
+      } else if (Array.isArray(err.error)) {
+        errorMsg = err.error.map((e: any) => e.message || JSON.stringify(e)).join('. ');
+      } else if (err.error && typeof err.error === 'object') {
+        errorMsg = err.error.message || JSON.stringify(err.error);
+      }
+      throw new Error(errorMsg);
     }
 
     return response.json();

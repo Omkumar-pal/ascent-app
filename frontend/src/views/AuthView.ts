@@ -122,9 +122,10 @@ export class AuthView {
             (window as any).showToast('Welcome back to Ascent!');
             onAuthSuccess(false);
           } else {
-            const name = (container.querySelector('#auth-name') as HTMLInputElement).value.trim();
-            const style = (container.querySelector('#auth-style') as HTMLSelectElement).value;
+            const name = (container.querySelector('#auth-name') as HTMLInputElement)?.value.trim() || 'Ascent User';
+            const style = (container.querySelector('#auth-style') as HTMLSelectElement)?.value || 'BALANCED';
             await ApiClient.register({
+              fullName: name,
               name,
               email,
               password,
