@@ -35,12 +35,12 @@ export class ProfileView {
         <!-- Personal Lifetime Stats Grid -->
         <section style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
           <div class="card-glass" style="padding: 16px; text-align: center;">
-            <div style="font-size: 22px; font-weight: 800; color: var(--accent-violet);">${data.stats?.totalGoals || 3}</div>
+            <div style="font-size: 22px; font-weight: 800; color: var(--accent-violet);">${data.stats?.totalGoals ?? 0}</div>
             <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Active Goals</div>
           </div>
 
           <div class="card-glass" style="padding: 16px; text-align: center;">
-            <div style="font-size: 22px; font-weight: 800; color: var(--accent-emerald);">${data.stats?.totalActionsCompleted || 24}</div>
+            <div style="font-size: 22px; font-weight: 800; color: var(--accent-emerald);">${data.stats?.totalActionsCompleted ?? 0}</div>
             <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Actions Achieved</div>
           </div>
         </section>

@@ -48,12 +48,12 @@ export class AuthView {
 
               <div>
                 <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Email Address</label>
-                <input type="email" id="auth-email" class="modal-input" placeholder="you@example.com" value="${mode === 'login' ? 'alex@ascent.app' : ''}" required style="width: 100%; box-sizing: border-box;">
+                <input type="email" id="auth-email" class="modal-input" placeholder="you@example.com" value="" required style="width: 100%; box-sizing: border-box;">
               </div>
 
               <div>
                 <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Password</label>
-                <input type="password" id="auth-password" class="modal-input" placeholder="••••••••" value="${mode === 'login' ? 'password123' : ''}" required style="width: 100%; box-sizing: border-box;">
+                <input type="password" id="auth-password" class="modal-input" placeholder="••••••••" value="" required style="width: 100%; box-sizing: border-box;">
               </div>
 
               ${mode === 'register' ? `

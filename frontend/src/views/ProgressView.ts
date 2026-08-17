@@ -51,19 +51,19 @@ export class ProgressView {
         <section style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
           <div class="card-glass" style="padding: 14px 10px; text-align: center; border-color: var(--border-emerald);">
             <div style="font-size: 18px; margin-bottom: 4px;">✅</div>
-            <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${summary.actionsCompletedCount || 18}</div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${summary.actionsCompletedCount ?? 0}</div>
             <div style="font-size: 11px; color: var(--text-muted);">Completed</div>
           </div>
 
           <div class="card-glass" style="padding: 14px 10px; text-align: center; border-color: rgba(245, 158, 11, 0.4);">
             <div style="font-size: 18px; margin-bottom: 4px;">➡️</div>
-            <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${summary.actionsRescheduledOrSkippedCount || 2}</div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${summary.actionsRescheduledOrSkippedCount ?? 0}</div>
             <div style="font-size: 11px; color: var(--text-muted);">Rescheduled</div>
           </div>
 
           <div class="card-glass" style="padding: 14px 10px; text-align: center; border-color: var(--border-focus);">
             <div style="font-size: 18px; margin-bottom: 4px;">🔥</div>
-            <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${summary.consistencyRate || 88}%</div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${summary.consistencyRate ?? 100}%</div>
             <div style="font-size: 11px; color: var(--text-muted);">Consistency</div>
           </div>
         </section>

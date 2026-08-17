@@ -11,7 +11,7 @@ export class TodayView {
 
     try {
       const data = await ApiClient.getTodayDashboard();
-      
+
       const { greeting, consistency, todayFocus, activeGoals, todayActionFlow } = data;
       const circumference = 2 * Math.PI * 36;
       const offset = circumference - (todayFocus.percentage / 100) * circumference;
@@ -60,15 +60,8 @@ export class TodayView {
             <h2>Active Goals</h2>
             <a class="section-link" id="view-all-goals">View all &rsaquo;</a>
           </div>
-          <div class="goals-carousel-track" style="${activeGoals.length === 0 ? 'display: block;' : ''}">
-            ${activeGoals.length === 0 ? `
-              <div class="card-glass" style="padding: 22px; text-align: center; border-radius: 16px; border: 1px dashed var(--border-subtle);">
-                <div style="font-size: 28px; margin-bottom: 6px;">🎯</div>
-                <h4 style="font-size: 15px; font-weight: 700; color: #FFF; margin-bottom: 4px;">Welcome to Ascent!</h4>
-                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">You haven't set any active goals yet. Create your first goal to start building your cadence.</p>
-                <button class="btn-primary" id="btn-create-first-goal" style="padding: 9px 18px; font-size: 12px; margin: 0 auto;">+ Create Your First Goal</button>
-              </div>
-            ` : activeGoals.map((g: any) => `
+          <div class="goals-carousel-track">
+            ${activeGoals.map((g: any) => `
               <div class="goal-card-compact" data-goal-id="${g.id}">
                 <span class="category-badge cat-${g.category.toLowerCase()}">${g.category}</span>
                 <h4>${g.title}</h4>
@@ -93,9 +86,9 @@ export class TodayView {
 
           <div class="action-items-list">
             ${todayActionFlow.length === 0 ? `
-              <div class="card-glass" style="text-align: center; padding: 22px 14px; border-radius: 16px;">
-                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 10px;">✨ No actions scheduled for today.</p>
-                <button class="btn-secondary" id="btn-add-action-empty" style="padding: 8px 16px; font-size: 12px;">+ Add an Action</button>
+              <div style="text-align: center; padding: 30px 10px; color: var(--text-muted);">
+                <p>No actions scheduled for today.</p>
+                <button class="btn-secondary" id="btn-add-action-empty" style="margin-top: 12px;">+ Add an Action</button>
               </div>
             ` : todayActionFlow.map((action: any) => `
               <div class="action-card ${action.status === 'COMPLETED' ? 'completed' : ''}" data-action-id="${action.id}">
@@ -121,8 +114,6 @@ export class TodayView {
       // Event Listeners
       container.querySelector('#view-all-goals')?.addEventListener('click', () => onNavigate('goals'));
       container.querySelector('#consistency-badge')?.addEventListener('click', () => onNavigate('progress'));
-      container.querySelector('#btn-create-first-goal')?.addEventListener('click', () => (window as any).openCreateGoalModal());
-      container.querySelector('#btn-add-action-empty')?.addEventListener('click', () => (window as any).openCreateGoalModal());
 
       // Goal card clicks -> Navigate to Goal Detail
       container.querySelectorAll('.goal-card-compact').forEach(card => {
