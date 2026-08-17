@@ -143,14 +143,29 @@ export class TodayView {
         });
       });
     } catch (err: any) {
+      if (err.message?.includes('User not found') || err.message?.includes('Session expired') || err.message?.includes('401')) {
+        ApiClient.clearToken();
+        (window as any).showToast('Session expired. Please sign in or create an account.');
+        onNavigate('auth');
+        return;
+      }
+
       container.innerHTML = `
         <div style="text-align: center; padding: 40px 20px;">
-          <h3>Connecting to Ascent Engine...</h3>
-          <p style="color: var(--text-muted); margin: 12px 0;">${err.message}</p>
-          <button class="btn-primary" id="retry-btn">Retry Connection</button>
+          <div style="font-size: 32px; margin-bottom: 12px;">⚠️</div>
+          <h3 style="font-size: 18px; margin-bottom: 8px;">Connection Notice</h3>
+          <p style="color: var(--text-muted); margin: 12px 0; font-size: 13px;">${err.message}</p>
+          <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
+            <button class="btn-primary" id="retry-btn" style="padding: 10px 18px; font-size: 13px;">Retry Connection</button>
+            <button class="btn-secondary" id="relogin-btn" style="padding: 10px 18px; font-size: 13px;">Sign In Again</button>
+          </div>
         </div>
       `;
       container.querySelector('#retry-btn')?.addEventListener('click', () => TodayView.render(container, onNavigate));
+      container.querySelector('#relogin-btn')?.addEventListener('click', () => {
+        ApiClient.clearToken();
+        onNavigate('auth');
+      });
     }
   }
 }
