@@ -33,12 +33,12 @@ export class ApiClient {
       headers,
     });
 
-    if ((response.status === 401 || response.status === 404) && !endpoint.includes('/auth/')) {
-      const err = await response.json().catch(() => ({ error: 'Session expired' }));
-      if (response.status === 401 || err.error === 'User not found') {
-        this.clearToken();
-        window.dispatchEvent(new CustomEvent('ascent_auth_expired'));
-        throw new Error(err.error || 'Session expired. Please sign in again.');
+    if (response.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
+      // Auto-login with demo credentials if token expired
+      const autoAuth = await this.login('alex@ascent.app', 'password123');
+      if (autoAuth?.token) {
+        this.setToken(autoAuth.token);
+        return this.request<T>(endpoint, options);
       }
     }
 
